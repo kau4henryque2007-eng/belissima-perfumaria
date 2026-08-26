@@ -529,7 +529,7 @@
       <a href="#buques">Buquês</a>
       <a href="#diferenciais">Diferenciais</a>
       <a href="#contato">Contato</a>
-      <button type="button" class="nav-admin-btn" id="navAdminBtn">Entrar</button>
+      <button type="button" class="nav-admin-btn" id="navAdminBtn" hidden>Painel</button>
       <a href="#contato" class="btn btn-primary nav-cta-mobile">Fale conosco</a>
     </nav>
     <div style="display:flex; align-items:center; gap:12px;">
@@ -1796,13 +1796,14 @@
       adminUnlocked = true;
       adminArea.hidden = false;
       navAdminBtn.textContent = 'Painel';
+      navAdminBtn.hidden = false;
       loadState().then(render);
     }
 
     function lockAdmin() {
       adminUnlocked = false;
       adminArea.hidden = true;
-      navAdminBtn.textContent = 'Entrar';
+      navAdminBtn.hidden = true;
     }
 
     function openLoginModal() {
@@ -1883,6 +1884,8 @@
 
       if (hasSession) {
         unlockAdmin();
+      } else if (window.location.hash === '#equipebelissima') {
+        openLoginModal();
       }
     }
 
