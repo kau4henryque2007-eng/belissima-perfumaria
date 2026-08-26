@@ -375,6 +375,20 @@
   }
   .admin-add-btn:hover { border-color: var(--brass-dark); }
 
+  .admin-tabs {
+    display: flex; gap: 22px; flex-wrap: wrap;
+    border-bottom: 1px solid var(--border-soft); margin-bottom: 22px;
+  }
+  .admin-tab-btn {
+    background: none; border: none; border-bottom: 2px solid transparent;
+    color: var(--text-muted); font-family: var(--font-body); font-size: 0.85rem;
+    padding: 4px 2px 10px; cursor: pointer;
+  }
+  .admin-tab-btn:hover { color: var(--gold-soft); }
+  .admin-tab-btn.active { color: var(--gold-soft); border-bottom-color: var(--gold-soft); }
+  .sales-subhead { font-size: 0.85rem; color: var(--text); margin: 0 0 8px; font-family: var(--font-body); font-weight: 600; }
+  .sales-list { display: flex; flex-direction: column; }
+
   .modal-overlay {
     position: fixed; inset: 0; background: rgba(20,8,13,0.72);
     display: flex; align-items: center; justify-content: center;
@@ -400,6 +414,65 @@
   .modal-date-row { display: flex; gap: 12px; }
   .modal-date-row label { flex: 1 1 0; }
   .modal-msg { margin-top: 12px; font-size: 0.85rem; color: var(--blush); min-height: 1.2em; }
+
+  .login-screen {
+    position: fixed; inset: 0; z-index: 300;
+    display: grid; grid-template-columns: 1fr 1.15fr;
+    background: var(--bg);
+  }
+  .login-screen[hidden] { display: none; }
+
+  .login-screen-visual {
+    position: relative;
+    background: linear-gradient(160deg, var(--bg) 0%, var(--bg-soft) 60%, var(--surface) 100%);
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    padding: 48px 32px;
+    border-right: 1px solid var(--border-soft);
+    overflow: hidden;
+  }
+  .login-screen-visual::before {
+    content: ""; position: absolute; inset: -20% -10% auto -10%; height: 460px;
+    background: radial-gradient(closest-side, rgba(183,145,63,0.22), transparent 72%);
+    pointer-events: none;
+  }
+  .login-screen-brand {
+    position: absolute; top: 32px; left: 40px; font-size: 1.3rem; z-index: 1;
+  }
+  .login-screen-illustration { position: relative; z-index: 1; }
+  .login-screen-illustration .bottle { transform: scale(1.1); }
+  .login-screen-tagline {
+    margin-top: 30px; font-family: var(--font-mono); font-size: 0.72rem; letter-spacing: 0.14em;
+    text-transform: uppercase; color: var(--text-faint); position: relative; z-index: 1;
+  }
+
+  .login-screen-form-panel {
+    position: relative;
+    background: var(--surface);
+    display: flex; align-items: center; justify-content: center;
+    padding: 48px;
+  }
+  .login-screen-close {
+    position: absolute; top: 24px; right: 28px;
+    background: none; border: none; color: var(--text-faint); font-size: 1.6rem;
+    line-height: 1; cursor: pointer;
+  }
+  .login-screen-close:hover { color: var(--text); }
+  .login-screen-form-wrap { width: 100%; max-width: 360px; }
+  .login-screen-form-wrap h2 { font-size: 1.8rem; font-weight: 500; }
+  .login-screen-sub { color: var(--text-muted); margin-top: 10px; font-size: 0.92rem; }
+  .login-screen-form-wrap form { display: flex; flex-direction: column; gap: 16px; margin-top: 30px; }
+  .login-screen-form-wrap label { display: flex; flex-direction: column; gap: 6px; font-size: 0.85rem; color: var(--text-muted); }
+  .login-screen-form-wrap input {
+    background: var(--bg); border: 1px solid var(--border); border-radius: 6px;
+    color: var(--text); padding: 12px 14px; font-family: var(--font-body); font-size: 0.98rem;
+  }
+  .login-screen-form-wrap .btn { margin-top: 4px; justify-content: center; }
+
+  @media (max-width: 760px) {
+    .login-screen { grid-template-columns: 1fr; }
+    .login-screen-visual { display: none; }
+    .login-screen-form-panel { padding: 32px 24px; }
+  }
 
   .toast {
     position: fixed; bottom: 24px; right: 24px; left: auto;
@@ -935,10 +1008,32 @@
   </div>
   <div class="wrap admin-area" id="adminArea" hidden>
     <div class="admin-panel" id="adminPanel">
-      <h4>Promoções</h4>
-      <p class="admin-sub">Cadastre os produtos em promoção, com preço e prazo de validade. Só aparece pra quem faz login pelo botão "Entrar" no topo do site — os clientes veem apenas as promoções ativas na seção "Promoções da vez".</p>
-      <button type="button" class="admin-add-btn" id="adminAddBtn">+ Nova promoção</button>
-      <div id="adminList"></div>
+      <div class="admin-tabs" id="adminTabs">
+        <button type="button" class="admin-tab-btn active" data-tab="promo">Promoções</button>
+        <button type="button" class="admin-tab-btn" data-tab="products">Estoque</button>
+        <button type="button" class="admin-tab-btn" data-tab="sales">Vendas</button>
+      </div>
+
+      <div class="admin-tab-panel" id="tabPromo">
+        <h4>Promoções</h4>
+        <p class="admin-sub">Cadastre os produtos em promoção, com preço e prazo de validade. Só aparece pra quem faz login pelo botão "Entrar" no topo do site — os clientes veem apenas as promoções ativas na seção "Promoções da vez".</p>
+        <button type="button" class="admin-add-btn" id="adminAddBtn">+ Nova promoção</button>
+        <div id="adminList"></div>
+      </div>
+
+      <div class="admin-tab-panel" id="tabProducts" hidden>
+        <h4>Estoque de produtos</h4>
+        <p class="admin-sub">Cadastre os produtos da loja e controle a quantidade em estoque. Use "Vender" pra registrar uma venda — o estoque desconta sozinho.</p>
+        <button type="button" class="admin-add-btn" id="productAddBtn">+ Novo produto</button>
+        <div id="productList"></div>
+      </div>
+
+      <div class="admin-tab-panel" id="tabSales" hidden>
+        <h4>Vendas</h4>
+        <p class="admin-sub">Totais de vendas por mês e por ano, calculados a partir das vendas registradas na aba Estoque.</p>
+        <div id="salesSummary"></div>
+      </div>
+
       <button type="button" class="admin-link" id="adminLogout" style="margin-top:16px;">Sair do modo administrativo</button>
     </div>
   </div>
@@ -973,20 +1068,81 @@
   </div>
 </div>
 
-<div class="modal-overlay" id="loginModal" hidden>
+<div class="modal-overlay" id="productModal" hidden>
   <div class="modal-box">
-    <button type="button" class="modal-close" id="loginModalClose" aria-label="Fechar">&times;</button>
-    <h3>Área administrativa</h3>
-    <form id="loginForm">
-      <label>Usuário
-        <input type="text" id="loginUsername" required autocomplete="username">
+    <button type="button" class="modal-close" id="productModalClose" aria-label="Fechar">&times;</button>
+    <h3 id="productModalTitle">Novo produto</h3>
+    <form id="productForm">
+      <label>Nome do produto
+        <input type="text" id="productName" required placeholder="Ex: Malbec Eau de Parfum 100ml">
       </label>
-      <label>Senha
-        <input type="password" id="loginPassword" required autocomplete="current-password">
+      <label>Categoria (opcional)
+        <input type="text" id="productCategory" placeholder="Ex: Perfumes, Buquês, Cosméticos">
       </label>
-      <button type="submit" class="btn btn-primary">Entrar</button>
-      <p class="modal-msg" id="loginModalMsg"></p>
+      <label>Preço (R$)
+        <input type="number" id="productPrice" required min="0" step="0.01" placeholder="Ex: 189.90">
+      </label>
+      <label>Quantidade em estoque
+        <input type="number" id="productStock" required min="0" step="1" placeholder="Ex: 10">
+      </label>
+      <input type="hidden" id="productEditId">
+      <button type="submit" class="btn btn-primary">Salvar produto</button>
+      <p class="modal-msg" id="productModalMsg"></p>
     </form>
+  </div>
+</div>
+
+<div class="modal-overlay" id="saleModal" hidden>
+  <div class="modal-box">
+    <button type="button" class="modal-close" id="saleModalClose" aria-label="Fechar">&times;</button>
+    <h3>Registrar venda</h3>
+    <p class="admin-sub" id="saleModalProductLabel" style="margin-bottom: 4px;"></p>
+    <form id="saleForm">
+      <label>Quantidade vendida
+        <input type="number" id="saleQuantity" required min="1" step="1" value="1">
+      </label>
+      <label>Data da venda
+        <input type="date" id="saleDate" required>
+      </label>
+      <input type="hidden" id="saleProductId">
+      <button type="submit" class="btn btn-primary">Confirmar venda</button>
+      <p class="modal-msg" id="saleModalMsg"></p>
+    </form>
+  </div>
+</div>
+
+<div class="login-screen" id="loginScreen" hidden>
+  <div class="login-screen-visual">
+    <a href="#top" class="brand login-screen-brand">Belíssima</a>
+    <div class="login-screen-illustration" aria-hidden="true">
+      <div class="bottle">
+        <div class="bottle-cap"></div>
+        <div class="bottle-neck"></div>
+        <div class="bottle-body">
+          <div class="bottle-liquid"></div>
+          <div class="bottle-shine"></div>
+          <div class="bottle-label">Belíssima</div>
+        </div>
+      </div>
+    </div>
+    <p class="login-screen-tagline">Área administrativa</p>
+  </div>
+  <div class="login-screen-form-panel">
+    <button type="button" class="login-screen-close" id="loginScreenClose" aria-label="Fechar">&times;</button>
+    <div class="login-screen-form-wrap">
+      <h2>Faça seu login</h2>
+      <p class="login-screen-sub">Acesso restrito à equipe Belíssima.</p>
+      <form id="loginForm">
+        <label>Usuário
+          <input type="text" id="loginUsername" required autocomplete="username">
+        </label>
+        <label>Senha
+          <input type="password" id="loginPassword" required autocomplete="current-password">
+        </label>
+        <button type="submit" class="btn btn-primary">Entrar</button>
+        <p class="modal-msg" id="loginModalMsg"></p>
+      </form>
+    </div>
   </div>
 </div>
 
@@ -1022,16 +1178,17 @@
       sb = null;
     }
 
-    var state = { promotions: [] };
+    var state = { promotions: [], products: [], sales: [] };
     var adminUnlocked = false;
+    var currentSaleProduct = null;
 
     var promoSection = document.getElementById('promocoes');
     var promoGrid = document.getElementById('promoGrid');
 
     var adminArea = document.getElementById('adminArea');
     var navAdminBtn = document.getElementById('navAdminBtn');
-    var loginModal = document.getElementById('loginModal');
-    var loginModalClose = document.getElementById('loginModalClose');
+    var loginModal = document.getElementById('loginScreen');
+    var loginModalClose = document.getElementById('loginScreenClose');
     var loginForm = document.getElementById('loginForm');
     var loginUsername = document.getElementById('loginUsername');
     var loginPassword = document.getElementById('loginPassword');
@@ -1052,6 +1209,36 @@
     var promoEndDate = document.getElementById('promoEndDate');
     var promoEditId = document.getElementById('promoEditId');
     var promoModalMsg = document.getElementById('promoModalMsg');
+
+    var adminTabBtns = document.querySelectorAll('.admin-tab-btn');
+    var tabPanels = {
+      promo: document.getElementById('tabPromo'),
+      products: document.getElementById('tabProducts'),
+      sales: document.getElementById('tabSales')
+    };
+
+    var productList = document.getElementById('productList');
+    var productAddBtn = document.getElementById('productAddBtn');
+    var productModal = document.getElementById('productModal');
+    var productModalTitle = document.getElementById('productModalTitle');
+    var productModalClose = document.getElementById('productModalClose');
+    var productForm = document.getElementById('productForm');
+    var productName = document.getElementById('productName');
+    var productCategory = document.getElementById('productCategory');
+    var productPrice = document.getElementById('productPrice');
+    var productStock = document.getElementById('productStock');
+    var productEditId = document.getElementById('productEditId');
+    var productModalMsg = document.getElementById('productModalMsg');
+
+    var salesSummary = document.getElementById('salesSummary');
+
+    var saleModal = document.getElementById('saleModal');
+    var saleModalClose = document.getElementById('saleModalClose');
+    var saleModalProductLabel = document.getElementById('saleModalProductLabel');
+    var saleForm = document.getElementById('saleForm');
+    var saleQuantity = document.getElementById('saleQuantity');
+    var saleDate = document.getElementById('saleDate');
+    var saleModalMsg = document.getElementById('saleModalMsg');
 
     var toastEl = document.getElementById('toast');
     var toastTimer = null;
@@ -1105,18 +1292,47 @@
       });
     }
 
+    function formatBRL(value) {
+      var num = Number(value);
+      if (isNaN(num)) return String(value);
+      return 'R$ ' + num.toFixed(2).replace('.', ',');
+    }
+
+    var monthNamesPt = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
+
     async function loadState() {
       if (!sb) {
-        state = { promotions: [] };
+        state = { promotions: [], products: [], sales: [] };
         return;
       }
+      var promotions = [];
       try {
         var res = await sb.from('promotions').select('*').order('end_date', { ascending: true });
         if (res.error) throw res.error;
-        state = { promotions: res.data || [] };
+        promotions = res.data || [];
       } catch (e) {
-        state = { promotions: [] };
+        promotions = [];
       }
+
+      var products = [];
+      try {
+        var productRes = await sb.from('products').select('*').order('name', { ascending: true });
+        if (productRes.error) throw productRes.error;
+        products = productRes.data || [];
+      } catch (e) {
+        products = [];
+      }
+
+      var sales = [];
+      try {
+        var salesRes = await sb.from('sales').select('*').order('sale_date', { ascending: false });
+        if (salesRes.error) throw salesRes.error;
+        sales = salesRes.data || [];
+      } catch (e) {
+        sales = [];
+      }
+
+      state = { promotions: promotions, products: products, sales: sales };
     }
 
     function renderPublic() {
@@ -1220,9 +1436,125 @@
       });
     }
 
+    function renderProducts() {
+      if (!adminUnlocked) return;
+      var sorted = state.products.slice().sort(function (a, b) {
+        return a.name.localeCompare(b.name, 'pt-BR');
+      });
+
+      productList.innerHTML = '';
+      if (!sorted.length) {
+        var empty = document.createElement('p');
+        empty.className = 'admin-empty';
+        empty.textContent = 'Nenhum produto cadastrado ainda.';
+        productList.appendChild(empty);
+        return;
+      }
+
+      sorted.forEach(function (p) {
+        var row = document.createElement('div');
+        row.className = 'admin-list-item';
+
+        var info = document.createElement('span');
+        info.className = 'info';
+        var catText = p.category ? (' · ' + p.category) : '';
+        info.innerHTML = '<b>' + escapeHtml(p.name) + '</b>' + escapeHtml(catText) + ' · ' + escapeHtml(formatBRL(p.price));
+        var stockEl = document.createElement('span');
+        stockEl.className = 'status ' + (p.stock_quantity <= 0 ? 'expired' : (p.stock_quantity <= 3 ? 'scheduled' : 'active'));
+        stockEl.textContent = p.stock_quantity + ' em estoque';
+        info.appendChild(stockEl);
+        row.appendChild(info);
+
+        var actions = document.createElement('div');
+        actions.className = 'row-actions';
+
+        var sellBtn = document.createElement('button');
+        sellBtn.type = 'button';
+        sellBtn.textContent = 'Vender';
+        sellBtn.disabled = p.stock_quantity <= 0;
+        sellBtn.addEventListener('click', function () { openSaleModal(p); });
+        actions.appendChild(sellBtn);
+
+        var editBtn = document.createElement('button');
+        editBtn.type = 'button';
+        editBtn.textContent = 'Editar';
+        editBtn.addEventListener('click', function () { openProductModal(p); });
+        actions.appendChild(editBtn);
+
+        var removeBtn = document.createElement('button');
+        removeBtn.type = 'button';
+        removeBtn.textContent = 'Remover';
+        removeBtn.addEventListener('click', function () { deleteProduct(p.id); });
+        actions.appendChild(removeBtn);
+
+        row.appendChild(actions);
+        productList.appendChild(row);
+      });
+    }
+
+    function computeSalesSummary() {
+      var monthly = {};
+      var yearly = {};
+      state.sales.forEach(function (s) {
+        var d = s.sale_date;
+        if (!d) return;
+        var year = d.slice(0, 4);
+        var monthKey = d.slice(0, 7);
+        var qty = Number(s.quantity) || 0;
+        var total = s.total != null ? Number(s.total) : qty * Number(s.unit_price || 0);
+
+        if (!monthly[monthKey]) monthly[monthKey] = { qty: 0, total: 0 };
+        monthly[monthKey].qty += qty;
+        monthly[monthKey].total += total;
+
+        if (!yearly[year]) yearly[year] = { qty: 0, total: 0 };
+        yearly[year].qty += qty;
+        yearly[year].total += total;
+      });
+      return { monthly: monthly, yearly: yearly };
+    }
+
+    function renderSalesSummary() {
+      if (!adminUnlocked) return;
+      var summary = computeSalesSummary();
+      var monthKeys = Object.keys(summary.monthly).sort().reverse();
+      var yearKeys = Object.keys(summary.yearly).sort().reverse();
+
+      var html = '<h5 class="sales-subhead">Por mês</h5>';
+      if (!monthKeys.length) {
+        html += '<p class="admin-empty">Nenhuma venda registrada ainda.</p>';
+      } else {
+        html += '<div class="sales-list">';
+        monthKeys.forEach(function (key) {
+          var parts = key.split('-');
+          var monthIdx = parseInt(parts[1], 10) - 1;
+          var label = (monthNamesPt[monthIdx] || parts[1]) + ' de ' + parts[0];
+          var row = summary.monthly[key];
+          html += '<div class="admin-list-item"><span class="info"><b>' + escapeHtml(label) + '</b> · ' + row.qty + ' un.</span><span class="info">' + escapeHtml(formatBRL(row.total)) + '</span></div>';
+        });
+        html += '</div>';
+      }
+
+      html += '<h5 class="sales-subhead" style="margin-top:26px;">Por ano</h5>';
+      if (!yearKeys.length) {
+        html += '<p class="admin-empty">Nenhuma venda registrada ainda.</p>';
+      } else {
+        html += '<div class="sales-list">';
+        yearKeys.forEach(function (year) {
+          var row = summary.yearly[year];
+          html += '<div class="admin-list-item"><span class="info"><b>' + escapeHtml(year) + '</b> · ' + row.qty + ' un.</span><span class="info">' + escapeHtml(formatBRL(row.total)) + '</span></div>';
+        });
+        html += '</div>';
+      }
+
+      salesSummary.innerHTML = html;
+    }
+
     function render() {
       renderPublic();
       renderAdmin();
+      renderProducts();
+      renderSalesSummary();
     }
 
     async function deletePromotion(id) {
@@ -1311,6 +1643,155 @@
     promoModal.addEventListener('click', function (e) { if (e.target === promoModal) closePromoModal(); });
     adminAddBtn.addEventListener('click', function () { openPromoModal(null); });
 
+    adminTabBtns.forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        adminTabBtns.forEach(function (b) { b.classList.remove('active'); });
+        btn.classList.add('active');
+        var target = btn.getAttribute('data-tab');
+        Object.keys(tabPanels).forEach(function (key) {
+          if (tabPanels[key]) tabPanels[key].hidden = (key !== target);
+        });
+      });
+    });
+
+    async function deleteProduct(id) {
+      if (!sb) {
+        showToast('Não deu pra conectar com o banco de dados agora.');
+        return;
+      }
+      try {
+        var res = await sb.from('products').delete().eq('id', id);
+        if (res.error) throw res.error;
+        await loadState();
+        render();
+        showToast('Produto removido.');
+      } catch (e) {
+        showToast('Não deu pra remover agora. Tente novamente em instantes.');
+      }
+    }
+
+    function openProductModal(product) {
+      productModalMsg.textContent = '';
+      if (product) {
+        productModalTitle.textContent = 'Editar produto';
+        productEditId.value = product.id;
+        productName.value = product.name;
+        productCategory.value = product.category || '';
+        productPrice.value = product.price;
+        productStock.value = product.stock_quantity;
+      } else {
+        productModalTitle.textContent = 'Novo produto';
+        productForm.reset();
+        productEditId.value = '';
+      }
+      productModal.hidden = false;
+    }
+
+    function closeProductModal() {
+      productModal.hidden = true;
+    }
+
+    productForm.addEventListener('submit', async function (e) {
+      e.preventDefault();
+      var name = productName.value.trim();
+      var category = productCategory.value.trim();
+      var price = parseFloat(String(productPrice.value).replace(',', '.'));
+      var stock = parseInt(productStock.value, 10);
+      var editId = productEditId.value;
+
+      if (!name || isNaN(price) || price < 0 || isNaN(stock) || stock < 0) {
+        productModalMsg.textContent = 'Preencha nome, preço e estoque com valores válidos.';
+        return;
+      }
+      if (!sb) {
+        productModalMsg.textContent = 'Não deu pra conectar com o banco de dados agora.';
+        return;
+      }
+
+      var entry = { name: name, category: category || null, price: price, stock_quantity: stock };
+
+      try {
+        var res = editId
+          ? await sb.from('products').update(entry).eq('id', editId)
+          : await sb.from('products').insert(entry);
+        if (res.error) throw res.error;
+        await loadState();
+        render();
+        showToast(editId ? 'Produto atualizado.' : 'Produto cadastrado.');
+        closeProductModal();
+      } catch (e) {
+        productModalMsg.textContent = 'Não deu pra salvar agora. Tente novamente em instantes.';
+      }
+    });
+
+    productModalClose.addEventListener('click', closeProductModal);
+    productModal.addEventListener('click', function (e) { if (e.target === productModal) closeProductModal(); });
+    productAddBtn.addEventListener('click', function () { openProductModal(null); });
+
+    function openSaleModal(product) {
+      currentSaleProduct = product;
+      saleModalMsg.textContent = '';
+      saleForm.reset();
+      saleQuantity.value = 1;
+      saleDate.value = todayStr();
+      saleModalProductLabel.textContent = product.name + ' · ' + formatBRL(product.price) + ' · ' + product.stock_quantity + ' em estoque';
+      saleModal.hidden = false;
+    }
+
+    function closeSaleModal() {
+      saleModal.hidden = true;
+      currentSaleProduct = null;
+    }
+
+    saleForm.addEventListener('submit', async function (e) {
+      e.preventDefault();
+      if (!currentSaleProduct) return;
+      var qty = parseInt(saleQuantity.value, 10);
+      var date = saleDate.value;
+
+      if (!qty || qty < 1) {
+        saleModalMsg.textContent = 'Informe uma quantidade válida.';
+        return;
+      }
+      if (qty > currentSaleProduct.stock_quantity) {
+        saleModalMsg.textContent = 'Quantidade maior que o estoque disponível (' + currentSaleProduct.stock_quantity + ').';
+        return;
+      }
+      if (!date) {
+        saleModalMsg.textContent = 'Informe a data da venda.';
+        return;
+      }
+      if (!sb) {
+        saleModalMsg.textContent = 'Não deu pra conectar com o banco de dados agora.';
+        return;
+      }
+
+      try {
+        var saleRes = await sb.from('sales').insert({
+          product_id: currentSaleProduct.id,
+          product_name: currentSaleProduct.name,
+          quantity: qty,
+          unit_price: currentSaleProduct.price,
+          sale_date: date
+        });
+        if (saleRes.error) throw saleRes.error;
+
+        var newStock = currentSaleProduct.stock_quantity - qty;
+        var stockRes = await sb.from('products').update({ stock_quantity: newStock }).eq('id', currentSaleProduct.id);
+        if (stockRes.error) throw stockRes.error;
+
+        await loadState();
+        render();
+        showToast('Venda registrada.');
+        closeSaleModal();
+      } catch (e) {
+        saleModalMsg.textContent = 'Não deu pra registrar a venda agora. Tente novamente em instantes.';
+      }
+    });
+
+    saleModalClose.addEventListener('click', closeSaleModal);
+    saleModal.addEventListener('click', function (e) { if (e.target === saleModal) closeSaleModal(); });
+
     function unlockAdmin() {
       adminUnlocked = true;
       adminArea.hidden = false;
@@ -1345,6 +1826,9 @@
 
     loginModalClose.addEventListener('click', closeLoginModal);
     loginModal.addEventListener('click', function (e) { if (e.target === loginModal) closeLoginModal(); });
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && !loginModal.hidden) closeLoginModal();
+    });
 
     loginForm.addEventListener('submit', async function (e) {
       e.preventDefault();
